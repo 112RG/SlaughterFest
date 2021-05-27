@@ -10,7 +10,7 @@ class Entity {
 	public var ftime(get,never) : Float; inline function get_ftime() return game.ftime;
 	public var tmod(get,never) : Float; inline function get_tmod() return Game.ME.tmod;
 	public var hud(get,never) : ui.Hud; inline function get_hud() return Game.ME.hud;
-
+	public var camera(get,never) : Camera; inline function get_camera() return game.camera;
 	/** Cooldowns **/
 	public var cd : dn.Cooldown;
 
@@ -52,7 +52,7 @@ class Entity {
 	public var sprScaleX = 1.0;
 	public var sprScaleY = 1.0;
 	public var entityVisible = true;
-
+	public var ignoreColl : Bool;
     public var spr : HSprite;
 	public var colorAdd : h3d.Vector;
 	var debugLabel : Null<h2d.Text>;
@@ -73,7 +73,7 @@ class Entity {
 
 		cd = new dn.Cooldown(Const.FPS);
         setPosCase(x,y);
-
+		ignoreColl = true;
         spr = new HSprite(Assets.tiles);
         Game.ME.scroller.add(spr, Const.DP_MAIN);
 		spr.colorAdd = colorAdd = new h3d.Vector();
@@ -114,6 +114,15 @@ class Entity {
 	public function cancelVelocities() {
 		dx = bdx = 0;
 		dy = bdy = 0;
+	}
+
+
+	public function isOnScreen(cPadding=1) {
+		return
+			cx>=-cPadding
+			&& cx<level.pxWid+cPadding
+			&& centerY>=game.camera.top-cPadding*Const.GRID
+			&& centerY<game.camera.bottom+cPadding*Const.GRID;
 	}
 
 	public function is<T:Entity>(c:Class<T>) return Std.isOfType(this, c);
@@ -245,41 +254,66 @@ class Entity {
 		}
 	}
 
+	function onHitWall() {}
+	function onStep() {}
+	var maxStep = 0.4;
+	function physicsUpdate() {
+
+		var steps = M.fabs(dx)<=maxStep ? 1 : M.ceil(M.fabs(dx/maxStep));
+		steps = M.imax( steps, M.fabs(dy)<=maxStep ? 1 : M.ceil(M.fabs(dy/maxStep)) );
+
+		for(i in 0...steps) {
+			if( destroyed )
+				return;
+
+			// X
+			xr+=dx/steps;
+			if( !ignoreColl ) {
+				if( xr>0.8 && !level.isValid(cx+1,cy) ) {
+					xr = 0.8;
+					dx = 0;
+					onHitWall();
+				}
+				if( xr<0.2 && !level.isValid(cx-1,cy) ) {
+					xr = 0.2;
+					dx = 0;
+					onHitWall();
+				}
+			}
+			while( xr>1 ) { xr--; cx++; }
+			while( xr<0 ) { xr++; cx--; }
+
+			// Y
+			yr+=dy/steps;
+
+			if( !ignoreColl ) {
+				if( yr>0.8 && !level.isValid(cx,cy+1) ) {
+					yr = 0.8;
+					dy = 0;
+					onHitWall();
+				}
+				if( yr<0.2 && !level.isValid(cx,cy-1) ) {
+					yr = 0.2;
+					dy = 0;
+					onHitWall();
+				}
+			}
+			while( yr>1 ) { yr--; cy++; }
+			while( yr<0 ) { yr++; cy--; }
+
+			onStep();
+		}
+
+		dx*=frictX;
+		dy*=frictY;
+		if( M.fabs(dx)<=0.001 ) dx = 0;
+		if( M.fabs(dy)<=0.001 ) dy = 0;
+	}
+
 	public function fixedUpdate() {} // runs at a "guaranteed" 30 fps
 
     public function update() { // runs at an unknown fps
-		// X
-		var steps = M.ceil( M.fabs(dxTotal*tmod) );
-		var step = dxTotal*tmod / steps;
-		while( steps>0 ) {
-			xr+=step;
-
-			// [ add X collisions checks here ]
-
-			while( xr>1 ) { xr--; cx++; }
-			while( xr<0 ) { xr++; cx--; }
-			steps--;
-		}
-		dx*=Math.pow(frictX,tmod);
-		bdx*=Math.pow(bumpFrict,tmod);
-		if( M.fabs(dx)<=0.0005*tmod ) dx = 0;
-		if( M.fabs(bdx)<=0.0005*tmod ) bdx = 0;
-
-		// Y
-		var steps = M.ceil( M.fabs(dyTotal*tmod) );
-		var step = dyTotal*tmod / steps;
-		while( steps>0 ) {
-			yr+=step;
-
-			// [ add Y collisions checks here ]
-
-			while( yr>1 ) { yr--; cy++; }
-			while( yr<0 ) { yr++; cy--; }
-			steps--;
-		}
-		dy*=Math.pow(frictY,tmod);
-		bdy*=Math.pow(bumpFrict,tmod);
-		if( M.fabs(dy)<=0.0005*tmod ) dy = 0;
-		if( M.fabs(bdy)<=0.0005*tmod ) bdy = 0;
+		physicsUpdate();
     }
+	
 }

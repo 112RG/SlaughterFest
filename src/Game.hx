@@ -1,3 +1,4 @@
+import en.Hero;
 import dn.Process;
 import hxd.Key;
 
@@ -25,6 +26,7 @@ class Game extends Process {
 
 	public function new() {
 		super(Main.ME);
+
 		ME = this;
 		ca = Main.ME.controller.createAccess("game");
 		ca.setLeftDeadZone(0.2);
@@ -39,9 +41,11 @@ class Game extends Process {
 		level = new Level();
 		fx = new Fx();
 		hud = new ui.Hud();
-
 		Process.resizeAll();
 		trace(Lang.t._("Game is ready."));
+
+		new en.Hero(5,5);
+
 	}
 
 	/** CDB file changed on disk**/

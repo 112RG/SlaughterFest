@@ -14,6 +14,10 @@ class Camera extends dn.Process {
 	var dy : Float;
 	var bumpOffX = 0.;
 	var bumpOffY = 0.;
+	var trackingSpeed = 1.0;
+
+	public var targetOffX = 0.;
+	public var targetOffY = -20.;
 
 	/** If TRUE (default), the camera will try to stay inside level bounds. It cannot be done if level is smaller than actual viewport. In such case, the camera will be centered. **/
 	public var clampToLevelBounds = true;
@@ -55,20 +59,25 @@ class Camera extends dn.Process {
 		return M.ceil( Game.ME.h() / Const.SCALE );
 	}
 
-	public function trackEntity(e:Entity, immediate:Bool) {
+	public function trackEntity(e:Entity, immediate:Bool, speed=1.0) {
 		target = e;
-		if( immediate )
-			recenter();
+		setTrackingSpeed(speed);
+		if( immediate || focus.levelX==0 && focus.levelY==0 )
+			centerOnTarget();
+	}
+
+	public inline function setTrackingSpeed(spd:Float) {
+		trackingSpeed = M.fclamp(spd, 0.01, 10);
 	}
 
 	public inline function stopTracking() {
 		target = null;
 	}
 
-	public function recenter() {
+	public function centerOnTarget() {
 		if( target!=null ) {
-			focus.levelX = target.centerX;
-			focus.levelY = target.centerY;
+			focus.levelX = target.centerX + targetOffX;
+			focus.levelY = target.centerY + targetOffY;
 		}
 	}
 
