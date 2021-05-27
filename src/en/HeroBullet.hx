@@ -20,8 +20,7 @@ class HeroBullet extends en.Bullet {
 	}
 
 	function onHit(e:Entity) {
-		game.addScore(e.weight);
-		fx.hit(centerX, centerY);
+		//fx.hit(centerX, centerY);
 		e.hit(dmg);
 		destroy();
 	}

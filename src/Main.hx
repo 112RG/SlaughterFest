@@ -9,12 +9,20 @@ class Main extends dn.Process {
 
 	/** Controller Access created for Main & Boot **/
 	public var ca : dn.heaps.Controller.ControllerAccess;
-
+	var scene:h2d.Scene;
+ 	public var mouseX(get,never) : Float; function get_mouseX() return (scene.mouseX - Game.ME.scroller.x)/ Const.SCALE;
+	public var mouseY(get,never) : Float; function get_mouseY() return (scene.mouseY - Game.ME.scroller.y)/ Const.SCALE;
+	public var rawMouseX(get,never) : Float; function get_rawMouseX() return (scene.mouseX)/ Const.SCALE;
+	public var rawMouseY(get,never) : Float; function get_rawMouseY() return (scene.mouseY)/ Const.SCALE;
+ 
 	public function new(s:h2d.Scene) {
 		super();
+		scene = s;
 		ME = this;
-
         createRoot(s);
+
+
+	
 
 		// Engine settings
 		engine.backgroundColor = 0xff<<24|0x111133;
@@ -28,7 +36,6 @@ class Main extends dn.Process {
         #else
       		hxd.Res.initEmbed();
         #end
-
         // CastleDB hot reloading
 		#if debug
         hxd.res.Resource.LIVE_UPDATE = true;
@@ -46,7 +53,6 @@ class Main extends dn.Process {
 		// Assets & data init
 		hxd.snd.Manager.get(); // force sound manager init on startup instead of first sound play
 		Assets.init(); // init assets
-		new ui.Console(Assets.fontTiny, s); // init debug console
 		Lang.init("en"); // init Lang
 		Data.load( hxd.Res.data.entry.getText() ); // read castleDB json
 

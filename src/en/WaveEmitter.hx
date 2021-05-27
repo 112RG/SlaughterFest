@@ -13,7 +13,7 @@ class WaveEmitter extends Entity {
 	var freqS : Float;
 	public var topTriggerDist = 7;
 
-	public function new(x,y, n:Int, cb:Void->Enemy, freqS=0.5) {
+	public function new(x,y, n:Int, cb:Void->Enemy, freqS=0.7) {
 		super(x,y);
 		this.freqS = freqS;
 		count = Const.INFINITE;
@@ -34,8 +34,7 @@ class WaveEmitter extends Entity {
 		spr.alpha = count>0 ? 1 : 0.5;
 		if( !running && count>0  )
 			running = true;
-
-		if( running ) {
+		if( running  && Enemy.ALL.length < 3) {
 			if( !cd.hasSetS("pop",freqS) ) {
 				var e : Enemy = tickCb();
 				if( cx<=0 )

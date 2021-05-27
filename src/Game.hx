@@ -1,3 +1,4 @@
+import hxsl.Cache;
 import en.Hero;
 import dn.Process;
 import hxd.Key;
@@ -25,9 +26,11 @@ class Game extends Process {
 
 	public var hero : en.Hero;
 
+	public var debug : ui.Console;
+
 	public var score : Int;
 	var scoreTf : h2d.Text;
-
+	var c : ui.Console;
 	public function new() {
 		super(Main.ME);
 
@@ -42,16 +45,15 @@ class Game extends Process {
 		scroller.filter = new h2d.filter.ColorMatrix(); // force rendering for pixel perfect
 		score = 0;
 		camera = new Camera();
+
 		level = new Level();
 		fx = new Fx();
 		hud = new ui.Hud();
+		debug = new ui.Console(Assets.fontTiny, root); // init debug console
+
 		Process.resizeAll();
 		trace(Lang.t._("Game is ready."));
 		hero = new en.Hero(5,5);
-		var w = new en.WaveEmitter(12,12, 12, function() return new en.Enemy(0,0), 0.25);
-
-		var r = w.makeRand();
-		w.topTriggerDist = r.irange(3,6);
 
 		scoreTf = new h2d.Text(Assets.fontLarge);
 		root.add(scoreTf, Const.DP_UI);
@@ -127,6 +129,7 @@ class Game extends Process {
 	/** Main loop **/
 	override function update() {
 		super.update();
+		
 
 		for(e in Entity.ALL) if( !e.destroyed ) e.update();
 
@@ -138,6 +141,8 @@ class Game extends Process {
 					trace(Lang.t._("Press ESCAPE again to exit."));
 				else
 					hxd.System.exit();
+			if( ca.isKeyboardPressed(Key.TAB))
+				debug.show();
 			#end
 
 			// Restart

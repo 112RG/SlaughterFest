@@ -15,8 +15,9 @@ class Level extends dn.Process {
 	/** Level pixel height**/
 	public var pxHei(get,never) : Int; inline function get_pxHei() return cHei*Const.GRID;
 
-	var invalidated = true;
 
+	//public var data : World.World_Level;
+	var invalidated = true;
 	public function new() {
 		super(Game.ME);
 		createRootInLayers(Game.ME.scroller, Const.DP_BG);
@@ -37,13 +38,16 @@ class Level extends dn.Process {
 	function render() {
 		// Placeholder level render
 		root.removeChildren();
-		var g = new h2d.Graphics(root);
-		for(cx in 0...cWid)
+/* 		for(cx in 0...cWid)
 			for(cy in 0...cHei) {
 				var g = new h2d.Graphics(root);
 				g.beginFill( Color.randomColor(rnd(0,1), 0.5, 0.4) );
 				g.drawRect(cx*Const.GRID, cy*Const.GRID, cWid, cHei);
-			}
+			} */
+		var w = new en.WaveEmitter(12,12, 12, function() return new en.Enemy(0,0), 0.25);
+		var r = w.makeRand();
+		w.topTriggerDist = r.irange(3,6);
+	
 		//g.beginFill( 0xffcc00 );
 	}
 

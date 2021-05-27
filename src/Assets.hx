@@ -7,6 +7,7 @@ class Assets {
 	public static var fontMedium : h2d.Font;
 	public static var fontLarge : h2d.Font;
 	public static var tiles : SpriteLib;
+	public static var hero : SpriteLib;
 
 	static var initDone = false;
 	public static function init() {
@@ -19,6 +20,7 @@ class Assets {
 		fontSmall = hxd.Res.fonts.barlow_condensed_medium_regular_11.toFont();
 		fontMedium = hxd.Res.fonts.barlow_condensed_medium_regular_17.toFont();
 		fontLarge = hxd.Res.fonts.barlow_condensed_medium_regular_32.toFont();
+		hero = dn.heaps.assets.Aseprite.convertToSLib(Const.FPS, hxd.Res.atlas.hero.toAseprite());
 		tiles = dn.heaps.assets.Atlas.load("atlas/tiles.atlas");
 	}
 }
