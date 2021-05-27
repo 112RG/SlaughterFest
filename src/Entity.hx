@@ -48,6 +48,10 @@ class Entity {
 	/** Horizontal direction, can only be -1 or 1 **/
 	public var dir(default,set) = 1;
 
+
+	public var life : Int;
+	public var maxLife : Int;
+
 	// Sprite transformations
 	public var sprScaleX = 1.0;
 	public var sprScaleY = 1.0;
@@ -91,7 +95,20 @@ class Entity {
 	public function kill(by:Null<Entity>) {
 		destroy();
 	}
-
+	public function blink() {
+		spr.colorAdd = h3d.Vector.fromColor(0xFFffffff);
+	}
+	public function hit(dmg:Int) {
+		blink();
+		life-=dmg;
+		if( life<=0 && !destroyed ) {
+			life = 0;
+			onDie();
+		}
+	}
+	function onDie() {
+		destroy();
+	}
 	public function setPosCase(x:Int, y:Int) {
 		cx = x;
 		cy = y;
@@ -141,7 +158,9 @@ class Entity {
 
 	public inline function distPx(e:Entity) return M.dist(footX, footY, e.footX, e.footY);
 	public inline function distPxFree(x:Float, y:Float) return M.dist(footX, footY, x, y);
-
+	public inline function dist(?e:Entity, ?x:Float, ?y:Float) {
+		return M.dist(centerX, centerY, e!=null ? e.centerX : x, e!=null ? e.centerY : y);
+	}
 	public function makePoint() return LPoint.fromCase(cx+xr,cy+yr);
 
     public inline function destroy() {

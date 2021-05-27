@@ -45,6 +45,7 @@ class Game extends Process {
 		trace(Lang.t._("Game is ready."));
 
 		new en.Hero(5,5);
+		new en.Enemy(10,10);
 
 	}
 

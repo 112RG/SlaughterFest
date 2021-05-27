@@ -157,6 +157,15 @@ class Fx extends dn.Process {
 		}
 	}
 
+	public function hit(x,y) {
+/* 		var p = allocTopNormal(getTile("hit"), x,y);
+		p.alpha = rnd(0.7,1);
+		p.ds = rnd(0.01,0.02);
+		p.dsFrict = 0.98;
+		p.playAnimAndKill(Assets.tiles, "hit", 0.4 * rnd(0.6,1));
+		p.rotation = rnd(0,6.28); */
+	}
+
 
 	override function update() {
 		super.update();
