@@ -158,12 +158,15 @@ class Fx extends dn.Process {
 	}
 
 	public function hit(x,y) {
-/* 		var p = allocTopNormal(getTile("hit"), x,y);
-		p.alpha = rnd(0.7,1);
-		p.ds = rnd(0.01,0.02);
-		p.dsFrict = 0.98;
-		p.playAnimAndKill(Assets.tiles, "hit", 0.4 * rnd(0.6,1));
-		p.rotation = rnd(0,6.28); */
+		for(i in 0...200) {
+			var p = allocTopAdd( getTile("fxDot"), x+rnd(0,3,true), y+rnd(0,3,true) );
+			p.alpha = rnd(0.4,1);
+			p.colorAnimS(0x762087, 0x762087, rnd(0.6, 3)); // fade particle color from parameter color to some purple
+			p.moveAwayFrom(x,y, rnd(1,8)); // move away from source
+			p.frict = rnd(0.8, 0.9); // friction applied to velocities
+			p.gy = rnd(0, 0.02); // gravity Y (added on each frame)
+			p.lifeS = rnd(2,3); // life time in secondds
+		}
 	}
 
 

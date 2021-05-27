@@ -33,6 +33,7 @@ class Level extends dn.Process {
 		invalidated = true;
 	}
 
+
 	function render() {
 		// Placeholder level render
 		root.removeChildren();

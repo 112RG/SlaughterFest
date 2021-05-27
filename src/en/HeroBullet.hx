@@ -1,4 +1,4 @@
-package ensd;
+package en;
 
 import hxd.Key;
 
@@ -6,8 +6,8 @@ class HeroBullet extends en.Bullet {
 	public function new(dmgBonus:Int) {
 		super(0,0);
 		this.dmg = 1+dmgBonus;
-		//spr.set("gunBullet", dmgBonus>0 ? 1 : 0);
-		//spr.setCenterRatio(0.9,0.5);
+		spr.set("bullet", 0);
+		spr.setCenterRatio(0.5,0.5);
 	}
 
 	override function physicsUpdate() {
@@ -16,10 +16,11 @@ class HeroBullet extends en.Bullet {
 
 	override public function postUpdate() {
 		super.postUpdate();
-		//spr.rotation = Math.atan2(dy,dx);
+		spr.rotation = Math.atan2(dy,dx);
 	}
 
 	function onHit(e:Entity) {
+		game.addScore(e.weight);
 		fx.hit(centerX, centerY);
 		e.hit(dmg);
 		destroy();

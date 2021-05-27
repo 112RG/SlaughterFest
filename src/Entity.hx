@@ -52,6 +52,7 @@ class Entity {
 	public var life : Int;
 	public var maxLife : Int;
 
+	public var weight: Int;
 	// Sprite transformations
 	public var sprScaleX = 1.0;
 	public var sprScaleY = 1.0;

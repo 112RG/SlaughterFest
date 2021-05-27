@@ -23,6 +23,10 @@ class Game extends Process {
 	/** UI **/
 	public var hud : ui.Hud;
 
+	public var hero : en.Hero;
+
+	public var score : Int;
+	var scoreTf : h2d.Text;
 
 	public function new() {
 		super(Main.ME);
@@ -36,17 +40,35 @@ class Game extends Process {
 		scroller = new h2d.Layers();
 		root.add(scroller, Const.DP_BG);
 		scroller.filter = new h2d.filter.ColorMatrix(); // force rendering for pixel perfect
-
+		score = 0;
 		camera = new Camera();
 		level = new Level();
 		fx = new Fx();
 		hud = new ui.Hud();
 		Process.resizeAll();
 		trace(Lang.t._("Game is ready."));
+		hero = new en.Hero(5,5);
+		var w = new en.WaveEmitter(12,12, 12, function() return new en.Enemy(0,0), 0.25);
 
-		new en.Hero(5,5);
-		new en.Enemy(10,10);
+		var r = w.makeRand();
+		w.topTriggerDist = r.irange(3,6);
 
+		scoreTf = new h2d.Text(Assets.fontLarge);
+		root.add(scoreTf, Const.DP_UI);
+		scoreTf.x = 5;
+		addScore(0);
+	}
+
+	public function addScore(?e:Entity, v) {
+		score+=v;
+		scoreTf.text = "SCORE: "+ dn.Lib.leadingZeros(score, 6);
+		if( e!=null ) {
+			var tf = new h2d.Text(Assets.fontLarge);
+			scroller.add(tf, Const.DP_UI);
+			tf.text = ""+v;
+			tf.setPosition(e.centerX-tf.textWidth*0.5, e.centerY-tf.textHeight*0.5);
+			tw.createMs(tf.alpha, 500|0, TEaseIn, 400).end( tf.remove );
+		}
 	}
 
 	/** CDB file changed on disk**/
