@@ -12,6 +12,7 @@ class Fx extends dn.Process {
 	public var bgNormalSb    : h2d.SpriteBatch;
 	public var topAddSb       : h2d.SpriteBatch;
 	public var topNormalSb    : h2d.SpriteBatch;
+	final dict = Assets.bulletDict;
 
 	public function new() {
 		super(Game.ME);
@@ -158,17 +159,16 @@ class Fx extends dn.Process {
 	}
 
 	public function hit(x,y) {
-		for(i in 0...200) {
-			var p = allocTopAdd( getTile("fxDot"), x+rnd(0,3,true), y+rnd(0,3,true) );
+		for(i in 0...100) {
+			var p = allocTopAdd( getTile("fxDot"), x+rnd(0,2,true), y+rnd(0,2,true) );
 			p.alpha = rnd(0.4,1);
-			p.colorAnimS(0x762087, 0x762087, rnd(0.6, 3)); // fade particle color from parameter color to some purple
-			p.moveAwayFrom(x,y, rnd(1,8)); // move away from source
+			p.colorAnimS(0xFF0000, 0x4C0000, rnd(0.6, 3)); // fade particle color from parameter color to some purple
+			p.moveAwayFrom(x,y, rnd(1,3)); // move away from source
 			p.frict = rnd(0.8, 0.9); // friction applied to velocities
-			p.gy = rnd(0, 0.02); // gravity Y (added on each frame)
-			p.lifeS = rnd(2,3); // life time in secondds
+			//p.gy = rnd(0, 0.02); // gravity Y (added on each frame)
+			p.lifeS = rnd(2,20); // life time in secondds
 		}
 	}
-
 
 	override function update() {
 		super.update();

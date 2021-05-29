@@ -1,3 +1,6 @@
+import dn.Bresenham;
+import en.Hero;
+
 class Entity {
     public static var ALL : Array<Entity> = [];
     public static var GC : Array<Entity> = [];
@@ -11,8 +14,12 @@ class Entity {
 	public var tmod(get,never) : Float; inline function get_tmod() return Game.ME.tmod;
 	public var hud(get,never) : ui.Hud; inline function get_hud() return Game.ME.hud;
 	public var camera(get,never) : Camera; inline function get_camera() return game.camera;
+	public var hero(get,never) : Hero; inline function get_hero() return Game.ME.hero;
+
 	/** Cooldowns **/
 	public var cd : dn.Cooldown;
+	var dict = Assets.tilesDict;
+	var bullets = Assets.bulletDict;
 
 	/** Unique identifier **/
 	public var uid(default,null) : Int;
@@ -26,11 +33,13 @@ class Entity {
 	// Velocities
     public var dx = 0.;
 	public var dy = 0.;
-
 	// Uncontrollable bump velocities, usually applied by external
 	// factors (think of a bumper in Sonic for example)
     public var bdx = 0.;
 	public var bdy = 0.;
+
+
+	public inline function angTo(e:Entity) return Math.atan2(e.footY-footY, e.footX-footX);
 
 	// Velocities + bump velocities
 	public var dxTotal(get,never) : Float; inline function get_dxTotal() return dx+bdx;
@@ -81,7 +90,6 @@ class Entity {
 		ignoreColl = true;
         spr = new HSprite(Assets.tiles);
         Game.ME.scroller.add(spr, Const.DP_MAIN);
-		spr.colorAdd = colorAdd = new h3d.Vector();
 		spr.setCenterRatio(0.5,1);
     }
 
@@ -96,11 +104,8 @@ class Entity {
 	public function kill(by:Null<Entity>) {
 		destroy();
 	}
-	public function blink() {
-		spr.colorAdd = h3d.Vector.fromColor(0xFFffffff);
-	}
 	public function hit(dmg:Int) {
-		blink();
+		//blink();
 		life-=dmg;
 		if( life<=0 && !destroyed ) {
 			life = 0;
@@ -124,9 +129,15 @@ class Entity {
 		yr = (y-cy*Const.GRID)/Const.GRID;
 	}
 
-	public function bump(x:Float,y:Float) {
-		bdx+=x;
-		bdy+=y;
+	public inline function bumpAwayFrom(e:Entity, spd:Float, ?spdZ=0., ?ignoreReduction=false) {
+		var a = e.angTo(this);
+		bump(Math.cos(a)*spd, Math.sin(a)*spd*0.5, spdZ, ignoreReduction);
+	}
+	public function bump(x:Float,y:Float,z:Float, ?ignoreReduction=false) {
+		var f = ignoreReduction ? 1.0 : 1-0.4;
+		bdx+=x*f;
+		bdy+=y*f;
+		dy+=z*f;
 	}
 
 	public function cancelVelocities() {
@@ -162,6 +173,11 @@ class Entity {
 	public inline function dist(?e:Entity, ?x:Float, ?y:Float) {
 		return M.dist(centerX, centerY, e!=null ? e.centerX : x, e!=null ? e.centerY : y);
 	}
+
+	public inline function sightCheckCase(tcx:Int, tcy:Int) {
+		return Bresenham.checkThinLine(cx,cy,tcx,tcy, function(x,y) return !level.hasAnyCollision(x,y));
+	}
+	
 	public function makePoint() return LPoint.fromCase(cx+xr,cy+yr);
 
     public inline function destroy() {
@@ -278,7 +294,6 @@ class Entity {
 	function onStep() {}
 	var maxStep = 0.4;
 	function physicsUpdate() {
-
 		var steps = M.fabs(dx)<=maxStep ? 1 : M.ceil(M.fabs(dx/maxStep));
 		steps = M.imax( steps, M.fabs(dy)<=maxStep ? 1 : M.ceil(M.fabs(dy/maxStep)) );
 
@@ -289,12 +304,13 @@ class Entity {
 			// X
 			xr+=dx/steps;
 			if( !ignoreColl ) {
-				if( xr>0.8 && !level.isValid(cx+1,cy) ) {
+				if( xr>0.8 && level.hasAnyCollision(cx+1,cy) ) {
+					game.hud.debug(level.hasAnyCollision(cx+1,cy), true);
 					xr = 0.8;
 					dx = 0;
 					onHitWall();
 				}
-				if( xr<0.2 && !level.isValid(cx-1,cy) ) {
+				if( xr<0.2 && level.hasAnyCollision(cx-1,cy) ) {
 					xr = 0.2;
 					dx = 0;
 					onHitWall();
@@ -307,12 +323,12 @@ class Entity {
 			yr+=dy/steps;
 
 			if( !ignoreColl ) {
-				if( yr>0.8 && !level.isValid(cx,cy+1) ) {
+				if( yr>0.8 && level.hasAnyCollision(cx,cy+1) ) {
 					yr = 0.8;
 					dy = 0;
 					onHitWall();
 				}
-				if( yr<0.2 && !level.isValid(cx,cy-1) ) {
+				if( yr<0.2 && level.hasAnyCollision(cx,cy-1) ) {
 					yr = 0.2;
 					dy = 0;
 					onHitWall();

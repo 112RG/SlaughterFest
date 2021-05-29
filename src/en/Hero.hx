@@ -1,16 +1,15 @@
 package en;
 
-import dn.Bresenham;
-import dn.Cooldown;
-import hxd.Timer;
-import format.swf.Data.CXA;
-
 class Hero extends Entity {
     var ca : dn.heaps.Controller.ControllerAccess;
     var anims = dn.heaps.assets.Aseprite.getDict( hxd.Res.atlas.hero );
     private var path = new h2d.Graphics(game.scroller);
-    public function new(x,y) {
-        super(x,y);
+	var data : Entity_Hero;
+
+    public function new() {
+		data = level.data.l_Entities.all_Hero[0];
+
+		super(data.cx, data.cy);
         
         var g = new h2d.Graphics(spr);
         camera.trackEntity(this, true);
@@ -30,6 +29,8 @@ class Hero extends Entity {
     override public function hit(dmg:Int) {
 		fx.flashBangS(0xFF0000,0.2);
 		super.hit(dmg);
+        game.addHealth(life);
+
 	}
 	override function update() { // the Entity main loops
 

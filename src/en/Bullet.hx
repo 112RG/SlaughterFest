@@ -7,6 +7,9 @@ class Bullet extends Entity {
 		frictX = 1;
         frictY = 1;
 		dmg = 1;
+		spr = new HSprite(Assets.bullets);
+		Game.ME.scroller.add(spr, Const.DP_MAIN);
+		//spr.setCenterRatio(0.5,1);
 		//spr.anim.play("mobBullet").loop();
 	}
 

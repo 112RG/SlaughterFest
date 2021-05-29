@@ -6,8 +6,13 @@ class HeroBullet extends en.Bullet {
 	public function new(dmgBonus:Int) {
 		super(0,0);
 		this.dmg = 1+dmgBonus;
-		spr.set("bullet", 0);
-		spr.setCenterRatio(0.5,0.5);
+		spr.anim.playAndLoop(bullets.fxBullet);
+		spr.anim.setSpeed(0.4);
+		//spr.anim.playAndLoop();
+		//spr.anim.playAndLoop('fxBullet');
+		//spr.set(dict.fxCircle15, 0);
+		//spr.setCenterRatio(0.5,0.5);
+		ignoreColl = false;
 	}
 
 	override function physicsUpdate() {
@@ -20,7 +25,7 @@ class HeroBullet extends en.Bullet {
 	}
 
 	function onHit(e:Entity) {
-		//fx.hit(centerX, centerY);
+		fx.hit(centerX, centerY);
 		e.hit(dmg);
 		destroy();
 	}

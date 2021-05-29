@@ -30,6 +30,7 @@ class Game extends Process {
 
 	public var score : Int;
 	var scoreTf : h2d.Text;
+	var healthTf : h2d.Text;
 	var c : ui.Console;
 	public function new() {
 		super(Main.ME);
@@ -46,19 +47,25 @@ class Game extends Process {
 		score = 0;
 		camera = new Camera();
 
-		level = new Level();
+		level = new Level(Assets.worldData.levels[Assets.worldData.all_levels.Level_0.arrayIndex]);
 		fx = new Fx();
 		hud = new ui.Hud();
 		debug = new ui.Console(Assets.fontTiny, root); // init debug console
-
 		Process.resizeAll();
 		trace(Lang.t._("Game is ready."));
-		hero = new en.Hero(5,5);
+		hero = new en.Hero();
 
 		scoreTf = new h2d.Text(Assets.fontLarge);
+		healthTf = new h2d.Text(Assets.fontLarge);
+
 		root.add(scoreTf, Const.DP_UI);
+		root.add(healthTf, Const.DP_UI);
+
 		scoreTf.x = 5;
+		healthTf.x = 5;
+		healthTf.y = Assets.fontLarge.lineHeight;
 		addScore(0);
+		addHealth(hero.life);
 	}
 
 	public function addScore(?e:Entity, v) {
@@ -72,7 +79,9 @@ class Game extends Process {
 			tw.createMs(tf.alpha, 500|0, TEaseIn, 400).end( tf.remove );
 		}
 	}
-
+	public function addHealth(v:Int) {
+		healthTf.text = "HEALTH: "+ hero.life;
+	}
 	/** CDB file changed on disk**/
 	public function onCdbReload() {}
 
@@ -136,12 +145,12 @@ class Game extends Process {
 		if( !ui.Console.ME.isActive() && !ui.Modal.hasAny() ) {
 			#if hl
 			// Exit
-			if( ca.isKeyboardPressed(Key.ESCAPE) )
+			if( ca.isKeyboardPressed(K.ESCAPE) )
 				if( !cd.hasSetS("exitWarn",3) )
 					trace(Lang.t._("Press ESCAPE again to exit."));
 				else
 					hxd.System.exit();
-			if( ca.isKeyboardPressed(Key.TAB))
+			if( ca.isKeyboardPressed(K.TAB))
 				debug.show();
 			#end
 

@@ -15,13 +15,24 @@ class Level extends dn.Process {
 	/** Level pixel height**/
 	public var pxHei(get,never) : Int; inline function get_pxHei() return cHei*Const.GRID;
 
+	public var data : World.World_Level;
+	var tilesetSource : h2d.Tile;
+	public var pf : dn.pathfinder.AStar<CPoint>;
 
 	//public var data : World.World_Level;
 	var invalidated = true;
-	public function new() {
+	public function new(ldtkLevel:World.World_Level) {
 		super(Game.ME);
 		createRootInLayers(Game.ME.scroller, Const.DP_BG);
+		pf = new dn.pathfinder.AStar(function(cx,cy) return new CPoint(cx,cy));
+
+		data = ldtkLevel;
+		tilesetSource = hxd.Res.atlas.world.toAseprite().toTile();
+		pf.init(data.pxWid, data.pxHei, hasAnyCollision);
+
+
 	}
+
 
 	/** TRUE if given coords are in level bounds **/
 	public inline function isValid(cx,cy) return cx>=0 && cx<cWid && cy>=0 && cy<cHei;
@@ -29,6 +40,12 @@ class Level extends dn.Process {
 	/** Gets the integer ID of a given level grid coord **/
 	public inline function coordId(cx,cy) return cx + cy*cWid;
 
+
+	public inline function hasAnyCollision(cx,cy) : Bool {
+		return !isValid(cx,cy)
+				? false
+				: data.l_Collisions.getInt(cx,cy)==1 || data.l_Collisions.getInt(cx,cy)==2;
+	}
 	/** Ask for a level render that will only happen at the end of the current frame. **/
 	public inline function invalidate() {
 		invalidated = true;
@@ -47,7 +64,11 @@ class Level extends dn.Process {
 		var w = new en.WaveEmitter(12,12, 12, function() return new en.Enemy(0,0), 0.25);
 		var r = w.makeRand();
 		w.topTriggerDist = r.irange(3,6);
-	
+		var tg = new h2d.TileGroup(tilesetSource, root);
+		data.l_Collisions.render(tg);
+		data.l_Tiles.render(tg);
+		data.l_Doors.render(tg);
+		data.l_Tiles.opacity = 1;
 		//g.beginFill( 0xffcc00 );
 	}
 
